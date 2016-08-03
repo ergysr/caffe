@@ -13,6 +13,8 @@
 #include "caffe/proto/caffe.pb.h"
 
 namespace caffe {
+  
+template <typename Dtype> class Solver;
 
 /**
  * @brief Connects Layer%s together into a directed acyclic graph (DAG)
@@ -64,6 +66,16 @@ class Net {
    *        Should be run before Backward.
    */
   void ClearParamDiffs();
+
+  /**
+   * @brief Store link to Solver if there is any
+   */
+  inline void SetSolver(Solver<Dtype> *solver) {
+    this->solver_ = solver;
+  }
+  inline Solver<Dtype>* GetSolver() {
+    return this->solver_;
+  }
 
   /**
    * The network backward should take no input and output, since it solely
@@ -228,6 +240,9 @@ class Net {
   static bool StateMeetsRule(const NetState& state, const NetStateRule& rule,
       const string& layer_name);
 
+  inline void set_iter(int iter) { iter_=iter; }
+  int iter() { return iter_; }
+
  protected:
   // Helpers for Init.
   /// @brief Append a new top blob to the net.
@@ -308,6 +323,9 @@ class Net {
   bool debug_info_;
   /// The root net that actually holds the shared layers in data parallelism
   const Net* const root_net_;
+
+  Solver<Dtype> *solver_;
+  int iter_;
   DISABLE_COPY_AND_ASSIGN(Net);
 };
 
